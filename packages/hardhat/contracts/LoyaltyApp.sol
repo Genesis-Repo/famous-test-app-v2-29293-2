@@ -22,6 +22,9 @@ contract LoyaltyApp is ERC721, Ownable {
     // Event emitted when a token is burned
     event TokenBurned(address indexed user, uint256 indexed tokenId);
 
+    // Event emitted when a token is redeemed
+    event TokenRedeemed(address indexed user, uint256 indexed tokenId, string reward);
+
     // Modifier to check if token is transferable
     modifier onlyTransferable() {
         require(isTokenTransferable, "Token is not transferable");
@@ -64,6 +67,22 @@ contract LoyaltyApp is ERC721, Ownable {
         _burn(tokenId);
 
         emit TokenBurned(_msgSender(), tokenId);
+    }
+
+    /**
+     * @dev Redeem a token for a specific reward or benefit.
+     * The token must not be burnt and the caller must be the owner of the token or the contract owner.
+     */
+    function redeemToken(uint256 tokenId, string memory reward) external {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Caller is not the owner nor approved");
+        require(!isTokenBurnt[tokenId], "Token is burnt and cannot be redeemed");
+
+        // Perform redemption logic here (e.g., distribute rewards, provide benefits)
+
+        isTokenBurnt[tokenId] = true; // Mark token as burnt after redemption
+        _burn(tokenId);
+
+        emit TokenRedeemed(_msgSender(), tokenId, reward);
     }
 
     /**
